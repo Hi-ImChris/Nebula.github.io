@@ -97,9 +97,30 @@ export async function purgeMessages() {
     }
 }
 
-// Initialize chat
+function initializeChatControls() {
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.querySelector('.send-button');
+    const attachmentButton = document.querySelector('.attachment-btn');
+
+    messageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    sendButton.addEventListener('click', sendMessage);
+    
+    attachmentButton.addEventListener('click', () => {
+        // TODO: Implement file upload functionality
+        showToast('File upload coming soon!', 'info');
+    });
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     displayMessages();
+    initializeChatControls();
 });
 
 export { sendMessage, displayMessages };
