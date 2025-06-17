@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nebula</title>
+    <!-- Add this before other stylesheets -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=gg+sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@emoji-mart/css@latest/css/emoji-mart.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emoji-mart/data@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emoji-mart/js@latest"></script>
+</head>
+<body>
+    <div id="auth-container">
+        <div class="auth-box">
+            <h1>Nebula</h1>
+            <div id="login-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button id="login-btn" onclick="loginUser()">Login</button>
+                <button id="register-btn" onclick="registerUser()">Register</button>
+            </div>
+        </div>
+        <div class="copyright">© F*ck Yeab Development 2025</div>
+    </div>
+
+    <div id="chat-container" style="display:none;">
+        <!-- Left Sidebar - Friends List -->
+        <div class="friends-sidebar">
+            <div class="sidebar-header">Friends</div>
+            <div id="friends-list"></div>
+            <div class="friend-requests">
+                <div class="sidebar-header">Friend Requests</div>
+                <div id="friend-requests-list"></div>
+            </div>
+            <div class="friends-actions">
+                <button class="add-friend-btn" onclick="showAddFriendModal()">
+                    <i class="fas fa-user-plus"></i>
+                    Add Friend
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-wrapper">
+            <!-- Top Bar with Admin Controls -->
+            <div class="chat-header">
+                <div class="chat-title">#general</div>
+                <div id="admin-controls" style="display:none;">
+                    <button onclick="purgeMessages()" class="danger-btn">Purge Chat</button>
+                    <button onclick="viewTimeouts()">Timeouts</button>
+                    <button onclick="viewBanList()">Bans</button>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="chat-box" class="chat-box"></div>
+
+            <!-- Message Input Area -->
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <div class="message-actions">
+                        <button class="action-btn upload-btn">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                    <input type="text" id="message-input" placeholder="Message #general">
+                    <div class="message-actions right">
+                        <button class="action-btn emoji-btn" onclick="toggleEmojiPicker(event)">
+                            <i class="far fa-smile"></i>
+                        </button>
+                        <button class="action-btn send-btn" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Members List -->
+        <div class="members-sidebar">
+            <div class="sidebar-header">Members</div>
+            <div id="members-list"></div>
+        </div>
+    </div>
+
+    <div class="emoji-menu" id="emoji-menu" style="display: none;">
+        <div class="emoji-search-wrapper">
+            <input type="text" class="emoji-search" placeholder="Search emoji">
+        </div>
+        <div class="emoji-categories">
+            <button class="category-btn active" data-category="recent">
+                <i class="fas fa-clock"></i>
+            </button>
+            <button class="category-btn" data-category="smileys">
+                <i class="far fa-smile"></i>
+            </button>
+            <button class="category-btn" data-category="nature">
+                <i class="fas fa-leaf"></i>
+            </button>
+            <button class="category-btn" data-category="food">
+                <i class="fas fa-hamburger"></i>
+            </button>
+            <button class="category-btn" data-category="activities">
+                <i class="fas fa-futbol"></i>
+            </button>
+            <button class="category-btn" data-category="travel">
+                <i class="fas fa-car"></i>
+            </button>
+            <button class="category-btn" data-category="objects">
+                <i class="fas fa-lightbulb"></i>
+            </button>
+            <button class="category-btn" data-category="symbols">
+                <i class="fas fa-heart"></i>
+            </button>
+            <button class="category-btn" data-category="flags">
+                <i class="fas fa-flag"></i>
+            </button>
+        </div>
+        <div class="emoji-content" id="emoji-content"></div>
+    </div>
+
+    <div id="emoji-picker" style="display:none;"></div>
+    <div class="overlay" onclick="closeEmojiPicker()"></div>
+
+    <div class="modal" id="add-friend-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Friend</h2>
+                <button class="close-modal" onclick="hideAddFriendModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="friend-username" placeholder="Enter a Username" maxlength="32">
+                <button class="submit-friend-btn" onclick="submitAddFriend()">Send Friend Request</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/chat.js"></script>
+    <script src="scripts/social.js"></script>
+    <script src="scripts/online.js"></script>
+    <script src="scripts/emojiPicker.js"></script>
+</body>
+</html>
