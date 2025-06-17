@@ -71,10 +71,21 @@
     <script type="module">
         import { loginUser, registerUser } from './scripts/auth.js';
         
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('loginBtn').addEventListener('click', loginUser);
-            document.getElementById('registerBtn').addEventListener('click', registerUser);
-        });
+        // Initialize auth functionality
+        function init() {
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            
+            if (loginBtn) loginBtn.addEventListener('click', loginUser);
+            if (registerBtn) registerBtn.addEventListener('click', registerUser);
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
