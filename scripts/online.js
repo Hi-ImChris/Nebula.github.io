@@ -12,20 +12,27 @@ export async function setUserOnline(username) {
     });
 }
 
-export function loadOnlineUsers() {
-    const onlineRef = ref(db, 'online');
-    onValue(onlineRef, (snapshot) => {
-        updateMembersList(snapshot.val() || {});
+function initializeOnlineUsers() {
+    const usersRef = ref(db, 'users');
+    
+    onValue(usersRef, (snapshot) => {
+        const users = snapshot.val() || {};
+        const onlineRef = ref(db, 'online');
+        
+        onValue(onlineRef, (onlineSnapshot) => {
+            const onlineUsers = onlineSnapshot.val() || {};
+            updateMembersList(users, onlineUsers);
+        });
     });
 }
 
-function updateMembersList(users) {
+function updateMembersList(users, onlineUsers) {
     const membersList = document.getElementById('members-list');
     if (!membersList) return;
 
     let html = '';
-    Object.entries(users).forEach(([username, data]) => {
-        const isOnline = data.status === 'online';
+    Object.keys(users).forEach(username => {
+        const isOnline = onlineUsers[username]?.status === 'online';
         html += `
             <div class="member-item">
                 <div class="member-status ${isOnline ? 'status-online' : 'status-offline'}"></div>
@@ -34,5 +41,7 @@ function updateMembersList(users) {
             </div>`;
     });
 
-    membersList.innerHTML = html || '<div class="no-members">No members online</div>';
+    membersList.innerHTML = html;
 }
+
+document.addEventListener('DOMContentLoaded', initializeOnlineUsers);

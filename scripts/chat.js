@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { ref, push, onValue, remove, set } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { ref, push, onValue, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 import { isAdmin } from './auth.js';
 
 let currentChat = 'general'; // Default chat room
@@ -20,19 +20,46 @@ function sendMessage() {
     push(messagesRef, {
         sender: currentUser,
         content: content,
-        timestamp: Date.now()
+        timestamp: serverTimestamp()
     });
 
     messageInput.value = '';
 }
 
-function displayMessages() {
+function displayMessages(messages) {
+    const chatBox = document.getElementById('chat-box');
+    if (!chatBox) return;
+
+    let html = '';
+    messages.forEach(msg => {
+        const time = new Date(msg.timestamp).toLocaleTimeString();
+        if (msg.sender === 'SYSTEM') {
+            html += `
+                <div class="message system">
+                    <div class="message-content">${msg.content}</div>
+                    <div class="system-timestamp">${time}</div>
+                </div>`;
+        } else {
+            html += `
+                <div class="message">
+                    <div class="message-header">
+                        <span class="sender">${sanitizeHTML(msg.sender)}</span>
+                        <span class="timestamp">${time}</span>
+                    </div>
+                    <div class="message-content">${sanitizeHTML(msg.content)}</div>
+                </div>`;
+        }
+    });
+
+    chatBox.innerHTML = html;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function initializeChat() {
     const messagesRef = ref(db, `messages/${currentChat}`);
     
+    // Listen for real-time updates
     onValue(messagesRef, (snapshot) => {
-        const chatBox = document.getElementById('chat-box');
-        if (!chatBox) return;
-
         const messages = [];
         snapshot.forEach((childSnapshot) => {
             messages.push({
@@ -43,30 +70,7 @@ function displayMessages() {
 
         // Sort messages by timestamp
         messages.sort((a, b) => a.timestamp - b.timestamp);
-
-        let html = '';
-        messages.forEach(msg => {
-            const time = new Date(msg.timestamp).toLocaleTimeString();
-            if (msg.sender === 'SYSTEM') {
-                html += `
-                    <div class="message system">
-                        <div class="message-content">${msg.content}</div>
-                        <div class="system-timestamp">${time}</div>
-                    </div>`;
-            } else {
-                html += `
-                    <div class="message">
-                        <div class="message-header">
-                            <span class="sender">${sanitizeHTML(msg.sender)}</span>
-                            <span class="timestamp">${time}</span>
-                        </div>
-                        <div class="message-content">${sanitizeHTML(msg.content)}</div>
-                    </div>`;
-            }
-        });
-
-        chatBox.innerHTML = html;
-        chatBox.scrollTop = chatBox.scrollHeight;
+        displayMessages(messages);
     });
 }
 
@@ -119,7 +123,7 @@ function initializeChatControls() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    displayMessages();
+    initializeChat();
     initializeChatControls();
 });
 
