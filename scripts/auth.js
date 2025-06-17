@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { ref, set, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
 const ADMIN_USERNAMES = ['SusLOL'];
 let currentUser = null;
 const INACTIVE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
@@ -39,7 +42,7 @@ const showToast = debounce((message, type = 'info') => {
     }, 3000);
 }, 300);
 
-function loginUser() {
+async function loginUser() {
     try {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
@@ -49,39 +52,37 @@ function loginUser() {
             return;
         }
         
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        const userRef = ref(db, `users/${username}`);
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
         
-        if (!users[username]) {
+        if (!userData) {
             showToast('User not found', 'error');
             return;
         }
         
-        if (users[username]?.banned) {
+        if (userData.banned) {
             showToast('Your account has been banned!', 'error');
             return;
         }
         
-        if (users[username].password === password) {
+        if (userData.password === password) {
             currentUser = username;
             localStorage.setItem('currentUser', username);
-            localStorage.setItem('lastActivity', Date.now().toString());
-            setUserOnline(username);
             
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('chat-container').style.display = 'grid';
             
             if (isAdmin(username)) {
                 const adminControls = document.getElementById('admin-controls');
-                if (adminControls) {
-                    adminControls.style.display = 'flex';
-                }
+                if (adminControls) adminControls.style.display = 'flex';
             }
             
+            setUserOnline(username);
             showToast(`Welcome back, ${username}!`, 'success');
             displayMessages();
             loadFriends();
             loadOnlineUsers();
-            startActivityCheck();
         } else {
             showToast('Invalid password', 'error');
         }
@@ -91,7 +92,7 @@ function loginUser() {
     }
 }
 
-function registerUser() {
+async function registerUser() {
     try {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
@@ -101,21 +102,22 @@ function registerUser() {
             return;
         }
         
-        const users = JSON.parse(localStorage.getItem('users') || '{}');
+        const userRef = ref(db, `users/${username}`);
+        const snapshot = await get(userRef);
         
-        if (users[username]) {
+        if (snapshot.exists()) {
             showToast('Username already exists!', 'error');
             return;
         }
         
-        users[username] = {
+        await set(userRef, {
             password: password,
             friends: [],
             friendRequests: [],
-            banned: false
-        };
+            banned: false,
+            createdAt: Date.now()
+        });
         
-        localStorage.setItem('users', JSON.stringify(users));
         showToast('Registered successfully!', 'success');
         loginUser();
     } catch (error) {
@@ -131,7 +133,11 @@ function isAdmin(username) {
 function logout() {
     const username = localStorage.getItem('currentUser');
     if (username) {
-        setUserOffline(username);
+        const userStatusRef = ref(db, `online/${username}`);
+        set(userStatusRef, {
+            status: 'offline',
+            lastSeen: Date.now()
+        });
     }
     localStorage.removeItem('currentUser');
     currentUser = null;
@@ -162,3 +168,5 @@ document.addEventListener('mousemove', () => {
         localStorage.setItem('lastActivity', Date.now().toString());
     }
 });
+
+export { loginUser, registerUser, isAdmin, logout };

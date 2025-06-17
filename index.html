@@ -16,13 +16,11 @@
 <body>
     <div id="auth-container">
         <div class="auth-box">
-            <h1>Nebula</h1>
-            <div id="login-form">
-                <input type="text" id="username" placeholder="Username" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button id="login-btn" onclick="loginUser()">Login</button>
-                <button id="register-btn" onclick="registerUser()">Register</button>
-            </div>
+            <h1>Welcome to Nebula</h1>
+            <input type="text" id="username" placeholder="Username" maxlength="32">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="window.loginUser()">Login</button>
+            <button onclick="window.registerUser()">Register</button>
         </div>
         <div class="copyright">© F*ck Yeab Development 2025</div>
     </div>
@@ -148,5 +146,10 @@
     <script type="module" src="./scripts/social.js"></script>
     <script type="module" src="./scripts/online.js"></script>
     <script type="module" src="./scripts/emojiPicker.js"></script>
+    <script type="module">
+        import { loginUser, registerUser } from './scripts/auth.js';
+        window.loginUser = loginUser;
+        window.registerUser = registerUser;
+    </script>
 </body>
 </html>
