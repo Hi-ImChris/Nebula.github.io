@@ -7,18 +7,17 @@ import { loadFriends } from './social.js';
 const ADMIN_USERNAMES = ['SusLOL'];
 export let currentUser = null;
 
-export async function loginUser() {
-    try {
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value;
-        
-        if (!username || !password) {
-            showToast('Please fill in all fields', 'error');
-            return;
-        }
+export function loginUser() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+        showToast('Please fill in all fields', 'error');
+        return;
+    }
 
-        const userRef = ref(db, `users/${username}`);
-        const snapshot = await get(userRef);
+    const userRef = firebase.database().ref(`users/${username}`);
+    userRef.get().then((snapshot) => {
         const userData = snapshot.val();
         
         if (!userData) {
@@ -27,24 +26,18 @@ export async function loginUser() {
         }
         
         if (userData.password === password) {
-            currentUser = username;
             localStorage.setItem('currentUser', username);
-            
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('chat-container').style.display = 'grid';
-            
-            await setUserOnline(username);
-            await displayMessages();
-            await loadFriends();
-            
+            setUserOnline(username);
             showToast(`Welcome back, ${username}!`, 'success');
         } else {
             showToast('Invalid password', 'error');
         }
-    } catch (error) {
+    }).catch((error) => {
         console.error('Login error:', error);
         showToast('An error occurred during login', 'error');
-    }
+    });
 }
 
 export async function registerUser() {
