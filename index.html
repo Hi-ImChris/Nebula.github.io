@@ -35,7 +35,9 @@
             <div class="chat-header">
                 <div class="chat-title">Welcome to Nebula</div>
                 <div id="admin-controls" style="display: none;">
-                    <button onclick="purgeMessages()" class="danger-btn">Purge Chat</button>
+                    <button onclick="purgeChat()" class="admin-btn danger-btn">
+                        <i class="fas fa-trash"></i> Purge Chat
+                    </button>
                 </div>
             </div>
             <div id="chat-box" class="chat-box"></div>
@@ -70,6 +72,10 @@
 
     <script type="module">
     import { loginUser, registerUser } from './scripts/auth.js';
+    import { purgeMessages } from './scripts/chat.js';
+    
+    // Make functions available globally
+    window.purgeChat = purgeMessages;
     
     function initializeApp() {
         const loginBtn = document.getElementById('loginBtn');

@@ -1,5 +1,6 @@
 import { db } from './firebase-config.js';
-import { ref, push, onValue, remove } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { ref, push, onValue, remove, set } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { isAdmin } from './auth.js';
 
 let currentChat = 'general'; // Default chat room
 
@@ -69,24 +70,31 @@ function displayMessages() {
     });
 }
 
-function purgeMessages() {
+export async function purgeMessages() {
     const currentUser = localStorage.getItem('currentUser');
+    
     if (!isAdmin(currentUser)) {
         showToast('You do not have permission to purge messages', 'error');
         return;
     }
 
-    const messagesRef = ref(db, `messages/${currentChat}`);
-    remove(messagesRef).then(() => {
+    try {
+        const messagesRef = ref(db, `messages/${currentChat}`);
+        await remove(messagesRef);
+        
+        // Add system message about purge
         const systemMessage = {
             sender: 'SYSTEM',
             content: '[CONSOLE] A Purge Has Been Initialised!',
             timestamp: Date.now()
         };
         
-        push(messagesRef, systemMessage);
+        await set(ref(db, `messages/${currentChat}/system`), systemMessage);
         showToast('Chat has been purged', 'success');
-    });
+    } catch (error) {
+        console.error('Purge error:', error);
+        showToast('Failed to purge messages', 'error');
+    }
 }
 
 // Initialize chat
@@ -94,4 +102,4 @@ document.addEventListener('DOMContentLoaded', () => {
     displayMessages();
 });
 
-export { sendMessage, displayMessages, purgeMessages };
+export { sendMessage, displayMessages };

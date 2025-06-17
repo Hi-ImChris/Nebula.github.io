@@ -2,7 +2,7 @@ import { db } from './firebase-config.js';
 import { ref, set, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 import { setUserOnline } from './online.js';
 
-const ADMIN_USERNAMES = ['SusLOL'];
+export const ADMIN_USERNAMES = ['SusLOL'];
 export let currentUser = null;
 
 // Toast notification system
@@ -61,15 +61,18 @@ export async function loginUser() {
         if (userData.password === password) {
             localStorage.setItem('currentUser', username);
             
-            // Update UI
             const authContainer = document.getElementById('auth-container');
             const chatContainer = document.getElementById('chat-container');
-            
-            console.log('Containers:', { authContainer, chatContainer }); // Debug log
+            const adminControls = document.getElementById('admin-controls');
             
             if (authContainer && chatContainer) {
                 authContainer.style.display = 'none';
                 chatContainer.style.display = 'grid';
+                
+                // Show admin controls if user is admin
+                if (isAdmin(username) && adminControls) {
+                    adminControls.style.display = 'flex';
+                }
                 
                 await setUserOnline(username);
                 showToast(`Welcome back, ${username}!`, 'success');
