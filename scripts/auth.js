@@ -55,6 +55,8 @@ async function loginUser() {
             return;
         }
         
+        console.log('Attempting login for:', username); // Debug log
+        
         const userRef = ref(db, `users/${username}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
@@ -70,31 +72,50 @@ async function loginUser() {
             localStorage.setItem('currentUser', username);
             
             // Update UI
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'grid';
+            const authContainer = document.getElementById('auth-container');
+            const chatContainer = document.getElementById('chat-container');
             
-            // Setup admin controls if needed
-            if (isAdmin(username)) {
-                const adminControls = document.getElementById('admin-controls');
-                if (adminControls) {
-                    adminControls.style.display = 'flex';
-                }
+            if (!authContainer || !chatContainer) {
+                throw new Error('Required DOM elements not found');
             }
             
-            // Initialize user presence
-            await setUserOnline(username);
+            authContainer.style.display = 'none';
+            chatContainer.style.display = 'grid';
             
-            // Load app data
-            displayMessages();
-            loadFriends();
-            
-            showToast(`Welcome back, ${username}!`, 'success');
+            // Initialize features one by one with error checking
+            try {
+                await setUserOnline(username);
+                console.log('User set online'); // Debug log
+                
+                await displayMessages();
+                console.log('Messages displayed'); // Debug log
+                
+                await loadFriends();
+                console.log('Friends loaded'); // Debug log
+                
+                // Setup admin controls if needed
+                if (isAdmin(username)) {
+                    const adminControls = document.getElementById('admin-controls');
+                    if (adminControls) {
+                        adminControls.style.display = 'flex';
+                    }
+                }
+                
+                showToast(`Welcome back, ${username}!`, 'success');
+            } catch (featureError) {
+                console.error('Feature initialization error:', featureError);
+                showToast('Logged in but some features failed to load', 'warning');
+            }
         } else {
             showToast('Invalid password', 'error');
         }
     } catch (error) {
-        console.error('Login error:', error);
-        showToast(`Login failed: ${error.message}`, 'error');
+        console.error('Login error details:', {
+            message: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
+        showToast('An error occurred during login. Check console for details.', 'error');
     }
 }
 
