@@ -1,3 +1,6 @@
+import { db } from './firebase-config.js';
+import { ref, push, onValue } from "firebase/database";
+
 let messages = JSON.parse(localStorage.getItem('messages') || '[]');
 let currentChat = 'Class GC';
 let selectedFiles = [];
@@ -5,10 +8,7 @@ let lastMessageCount = 0;
 
 function sendMessage() {
     const messageInput = document.getElementById('message-input');
-    if (!messageInput) return;
-
-    const content = messageInput.value.trim();
-    if (!content) return;
+    if (!messageInput || !messageInput.value.trim()) return;
 
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
@@ -16,49 +16,51 @@ function sendMessage() {
         return;
     }
 
-    const message = {
+    const messagesRef = ref(db, `messages/${currentChat}`);
+    push(messagesRef, {
         sender: currentUser,
-        content: content,
-        timestamp: Date.now(),
-        chat: currentChat
-    };
+        content: messageInput.value.trim(),
+        timestamp: new Date().toISOString()
+    });
 
-    messages.push(message);
-    localStorage.setItem('messages', JSON.stringify(messages));
-    
     messageInput.value = '';
-    displayMessages();
-    updateLastActivity();
 }
 
 function displayMessages() {
-    const chatBox = document.getElementById('chat-box');
-    if (!chatBox) return;
-
-    const currentMessages = messages.filter(msg => !msg.chat || msg.chat === currentChat);
+    const messagesRef = ref(db, `messages/${currentChat}`);
     
-    let html = '';
-    currentMessages.forEach(msg => {
-        if (msg.sender === 'SYSTEM') {
-            html += `
-                <div class="message system">
-                    <div class="message-content">${msg.content}</div>
-                    <div class="system-timestamp">${formatTimestamp(msg.timestamp)}</div>
-                </div>`;
-        } else {
-            html += `
-                <div class="message">
-                    <div class="message-header">
-                        <span class="sender">${sanitizeHTML(msg.sender)}</span>
-                        <span class="timestamp">${formatTimestamp(msg.timestamp)}</span>
-                    </div>
-                    <div class="message-content">${sanitizeHTML(msg.content)}</div>
-                </div>`;
-        }
-    });
+    onValue(messagesRef, (snapshot) => {
+        const chatBox = document.getElementById('chat-box');
+        if (!chatBox) return;
 
-    chatBox.innerHTML = html;
-    chatBox.scrollTop = chatBox.scrollHeight;
+        const messages = [];
+        snapshot.forEach((childSnapshot) => {
+            messages.push(childSnapshot.val());
+        });
+
+        let html = '';
+        messages.forEach(msg => {
+            if (msg.sender === 'SYSTEM') {
+                html += `
+                    <div class="message system">
+                        <div class="message-content">${msg.content}</div>
+                        <div class="system-timestamp">${formatTimestamp(msg.timestamp)}</div>
+                    </div>`;
+            } else {
+                html += `
+                    <div class="message">
+                        <div class="message-header">
+                            <span class="sender">${sanitizeHTML(msg.sender)}</span>
+                            <span class="timestamp">${formatTimestamp(msg.timestamp)}</span>
+                        </div>
+                        <div class="message-content">${sanitizeHTML(msg.content)}</div>
+                    </div>`;
+            }
+        });
+
+        chatBox.innerHTML = html;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
 }
 
 function purgeMessages() {
