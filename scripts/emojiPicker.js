@@ -1,4 +1,5 @@
-// Emoji data - Add more as needed
+import { db } from './firebase-config.js';
+
 const EMOJI_CATEGORIES = {
     recent: [],
     smileys: [
@@ -145,129 +146,150 @@ const EMOJI_CATEGORIES = {
         ]
 };
 
-// Load recent emojis from localStorage
-function loadRecentEmojis() {
-    const recent = localStorage.getItem('recentEmojis');
-    if (recent) {
-        EMOJI_CATEGORIES.recent = JSON.parse(recent);
-    }
+let currentCategory = 'smileys';
+const recentEmojis = JSON.parse(localStorage.getItem('recentEmojis') || '[]');
+
+function createEmojiPicker() {
+    const pickerHTML = `
+        <div class="emoji-menu" id="emoji-menu" style="display: none;">
+            <div class="emoji-search-wrapper">
+                <input type="text" class="emoji-search" placeholder="Search emoji" id="emoji-search">
+            </div>
+            <div class="emoji-categories">
+                <button class="category-btn active" data-category="recent">
+                    <i class="fas fa-clock"></i>
+                </button>
+                <button class="category-btn" data-category="smileys">
+                    <i class="fas fa-smile"></i>
+                </button>
+                <button class="category-btn" data-category="nature">
+                    <i class="fas fa-leaf"></i>
+                </button>
+                <button class="category-btn" data-category="food">
+                    <i class="fas fa-hamburger"></i>
+                </button>
+                <button class="category-btn" data-category="activities">
+                    <i class="fas fa-futbol"></i>
+                </button>
+                <button class="category-btn" data-category="travel">
+                    <i class="fas fa-car"></i>
+                </button>
+                <button class="category-btn" data-category="objects">
+                    <i class="fas fa-lightbulb"></i>
+                </button>
+                <button class="category-btn" data-category="symbols">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <button class="category-btn" data-category="flags">
+                    <i class="fas fa-flag"></i>
+                </button>
+            </div>
+            <div class="emoji-content" id="emoji-content"></div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', pickerHTML);
 }
 
-function toggleEmojiPicker(event) {
-    event.stopPropagation();
+function showEmojiMenu(event) {
     const emojiMenu = document.getElementById('emoji-menu');
-    const emojiBtn = event.currentTarget;
-    
-    if (emojiMenu.style.display === 'none' || !emojiMenu.style.display) {
-        showEmojiMenu(emojiBtn);
-    } else {
-        hideEmojiMenu();
-    }
-}
+    const button = event.currentTarget;
+    const rect = button.getBoundingClientRect();
 
-function showEmojiMenu(emojiBtn) {
-    const emojiMenu = document.getElementById('emoji-menu');
-    const rect = emojiBtn.getBoundingClientRect();
-    
-    // Position the menu above the emoji button
-    emojiMenu.style.position = 'fixed';
+    emojiMenu.style.display = 'block';
+    emojiMenu.style.position = 'absolute';
     emojiMenu.style.bottom = `${window.innerHeight - rect.top + 5}px`;
     emojiMenu.style.left = `${rect.left}px`;
-    
-    loadRecentEmojis();
-    loadEmojisForCategory('smileys'); // Default category
-    emojiMenu.style.display = 'block';
+
+    loadEmojisForCategory('recent');
 }
 
 function hideEmojiMenu() {
     const emojiMenu = document.getElementById('emoji-menu');
-    emojiMenu.style.display = 'none';
+    if (emojiMenu) {
+        emojiMenu.style.display = 'none';
+    }
 }
 
 function loadEmojisForCategory(category) {
     const emojiContent = document.getElementById('emoji-content');
-    const emojis = EMOJI_CATEGORIES[category];
+    let emojis = category === 'recent' ? recentEmojis : emojiData[category] || [];
     
-    let html = '';
-    emojis.forEach(emoji => {
-        html += `<div class="emoji-item" onclick="insertEmoji('${emoji}')">${emoji}</div>`;
-    });
-    
-    emojiContent.innerHTML = html;
-    
+    emojiContent.innerHTML = emojis.map(emoji => 
+        `<div class="emoji-item" data-emoji="${emoji}">${emoji}</div>`
+    ).join('');
+
     // Update active category button
     document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.category === category);
     });
+
+    currentCategory = category;
+}
+
+function addToRecent(emoji) {
+    const index = recentEmojis.indexOf(emoji);
+    if (index > -1) {
+        recentEmojis.splice(index, 1);
+    }
+    recentEmojis.unshift(emoji);
+    if (recentEmojis.length > 15) {
+        recentEmojis.pop();
+    }
+    localStorage.setItem('recentEmojis', JSON.stringify(recentEmojis));
 }
 
 function insertEmoji(emoji) {
     const messageInput = document.getElementById('message-input');
-    const cursorPos = messageInput.selectionStart;
-    const text = messageInput.value;
-    
-    messageInput.value = text.slice(0, cursorPos) + emoji + text.slice(cursorPos);
-    messageInput.focus();
-    
-    // Add to recent emojis
+    if (messageInput) {
+        const start = messageInput.selectionStart;
+        const end = messageInput.selectionEnd;
+        const text = messageInput.value;
+        messageInput.value = text.substring(0, start) + emoji + text.substring(end);
+        messageInput.selectionStart = messageInput.selectionEnd = start + emoji.length;
+        messageInput.focus();
+    }
     addToRecent(emoji);
+    hideEmojiMenu();
 }
 
-function addToRecent(emoji) {
-    let recent = EMOJI_CATEGORIES.recent;
-    recent = recent.filter(e => e !== emoji);
-    recent.unshift(emoji);
-    recent = recent.slice(0, 16); // Keep only 16 most recent
+function filterEmojis(searchTerm) {
+    const allEmojis = Object.values(emojiData).flat();
+    const filtered = allEmojis.filter(emoji => emoji.includes(searchTerm.toLowerCase()));
+    const emojiContent = document.getElementById('emoji-content');
     
-    EMOJI_CATEGORIES.recent = recent;
-    localStorage.setItem('recentEmojis', JSON.stringify(recent));
+    emojiContent.innerHTML = filtered.map(emoji => 
+        `<div class="emoji-item" data-emoji="${emoji}">${emoji}</div>`
+    ).join('');
 }
 
-// Initialize
+// Initialize emoji picker
 document.addEventListener('DOMContentLoaded', () => {
-    loadRecentEmojis();
-    
-    // Add category button handlers
-    document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.addEventListener('click', () => loadEmojisForCategory(btn.dataset.category));
-    });
-    
-    // Close on outside click
-    document.addEventListener('click', (e) => {
+    createEmojiPicker();
+
+    // Event listeners
+    document.addEventListener('click', (event) => {
         const emojiMenu = document.getElementById('emoji-menu');
-        if (!e.target.closest('#emoji-menu') && !e.target.closest('.emoji-btn')) {
+        if (emojiMenu && !emojiMenu.contains(event.target) && 
+            !event.target.classList.contains('emoji-button')) {
             hideEmojiMenu();
         }
     });
-    
-    // Search functionality
-    const searchInput = document.querySelector('.emoji-search');
+
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => loadEmojisForCategory(btn.dataset.category));
+    });
+
+    document.getElementById('emoji-content').addEventListener('click', (event) => {
+        if (event.target.classList.contains('emoji-item')) {
+            insertEmoji(event.target.dataset.emoji);
+        }
+    });
+
+    const searchInput = document.getElementById('emoji-search');
     if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            if (!query) {
-                loadEmojisForCategory('smileys');
-                return;
-            }
-            
-            let results = [];
-            Object.values(EMOJI_CATEGORIES).forEach(category => {
-                results = results.concat(category.filter(emoji => 
-                    emoji.toLowerCase().includes(query)
-                ));
-            });
-            
-            const emojiContent = document.getElementById('emoji-content');
-            let html = '';
-            results.forEach(emoji => {
-                html += `<div class="emoji-item" onclick="insertEmoji('${emoji}')">${emoji}</div>`;
-            });
-            emojiContent.innerHTML = html;
-        });
+        searchInput.addEventListener('input', (e) => filterEmojis(e.target.value));
     }
 });
 
-// Make functions globally available
-window.toggleEmojiPicker = toggleEmojiPicker;
-window.insertEmoji = insertEmoji;
-window.loadEmojisForCategory = loadEmojisForCategory;
+export { showEmojiMenu, hideEmojiMenu };
