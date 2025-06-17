@@ -9,21 +9,33 @@
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <!-- Your existing HTML structure -->
+    <!-- Auth Container -->
+    <div id="auth-container">
+        <div class="auth-box">
+            <h1>Welcome to Nebula</h1>
+            <input type="text" id="username" placeholder="Username" maxlength="32">
+            <input type="password" id="password" placeholder="Password">
+            <button id="loginBtn">Login</button>
+            <button id="registerBtn">Register</button>
+        </div>
+    </div>
 
-    <!-- Firebase SDK -->
+    <!-- Chat Container -->
+    <!-- ...existing chat container code... -->
+
+    <!-- Scripts -->
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-        
         import { loginUser, registerUser } from './scripts/auth.js';
-        import { setUserOnline } from './scripts/online.js';
         
-        window.loginUser = loginUser;
-        window.registerUser = registerUser;
-        window.setUserOnline = setUserOnline;
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add click event listeners instead of onclick attributes
+            document.getElementById('loginBtn').addEventListener('click', loginUser);
+            document.getElementById('registerBtn').addEventListener('click', registerUser);
+        });
     </script>
 
+    <!-- Module scripts -->
     <script type="module" src="./scripts/firebase-config.js"></script>
     <script type="module" src="./scripts/auth.js"></script>
     <script type="module" src="./scripts/chat.js"></script>
