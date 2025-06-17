@@ -1,12 +1,11 @@
 import { db } from './firebase-config.js';
 import { ref, set, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 import { setUserOnline } from './online.js';
-import { loadFriends } from './social.js';
 
 const ADMIN_USERNAMES = ['SusLOL'];
 export let currentUser = null;
 
-async function loginUser() {
+export async function loginUser() {
     try {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
@@ -34,13 +33,6 @@ async function loginUser() {
             
             localStorage.setItem('currentUser', username);
             
-            // Make sure chat container exists in HTML
-            const chatContainer = document.getElementById('chat-container');
-            if (!chatContainer) {
-                console.error('Chat container not found in DOM');
-                throw new Error('Chat container not found');
-            }
-
             // Hide auth container
             const authContainer = document.getElementById('auth-container');
             if (authContainer) {
@@ -48,7 +40,13 @@ async function loginUser() {
             }
 
             // Show chat container
-            chatContainer.style.display = 'grid';
+            const chatContainer = document.getElementById('chat-container');
+            if (chatContainer) {
+                chatContainer.style.display = 'grid';
+            } else {
+                console.error('Chat container not found in DOM');
+                throw new Error('Chat container not found');
+            }
             
             try {
                 await setUserOnline(username);
@@ -104,7 +102,7 @@ export function isAdmin(username) {
     return ADMIN_USERNAMES.includes(username);
 }
 
-export function showToast(message, type = 'info') {
+function showToast(message, type = 'info') {
     let container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');

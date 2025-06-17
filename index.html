@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nebula</title>
     <!-- Replace gg sans with a reliable Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="./style.css">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
     <!-- Auth Container -->
@@ -16,8 +19,8 @@
             <h1>Welcome to Nebula</h1>
             <input type="text" id="username" placeholder="Username" maxlength="32">
             <input type="password" id="password" placeholder="Password">
-            <button onclick="loginUser()">Login</button>
-            <button onclick="registerUser()">Register</button>
+            <button id="loginBtn">Login</button>
+            <button id="registerBtn">Register</button>
         </div>
     </div>
 
@@ -64,5 +67,14 @@
     <script type="module" src="./scripts/social.js"></script>
     <script type="module" src="./scripts/online.js"></script>
     <script type="module" src="./scripts/emojiPicker.js"></script>
+
+    <script type="module">
+        import { loginUser, registerUser } from './scripts/auth.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('loginBtn').addEventListener('click', loginUser);
+            document.getElementById('registerBtn').addEventListener('click', registerUser);
+        });
+    </script>
 </body>
 </html>
