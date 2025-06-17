@@ -83,7 +83,7 @@ body {
 /* Chat container styles */
 #chat-container {
     display: none;
-    grid-template-columns: 240px 1fr 240px;
+    grid-template-columns: 200px minmax(600px, 1fr) 200px;
     height: 100vh;
     background: #36393f;
 }
@@ -92,16 +92,21 @@ body {
 .friends-sidebar,
 .members-sidebar {
     background: #2f3136;
-    border-right: 1px solid #202225;
+    width: 200px;
+    min-width: 200px;
     display: flex;
     flex-direction: column;
 }
 
-.members-sidebar {
-    border-left: 1px solid #202225;
-    border-right: none;
+.friends-sidebar {
+    border-right: 1px solid #202225;
 }
 
+.members-sidebar {
+    border-left: 1px solid #202225;
+}
+
+/* Sidebar header styles */
 .sidebar-header {
     padding: 16px;
     color: #96989d;
@@ -111,6 +116,7 @@ body {
     border-bottom: 1px solid #202225;
 }
 
+/* Friends and Members list styles */
 .friends-list,
 .members-list {
     padding: 8px;
@@ -154,6 +160,9 @@ body {
 
 /* Chat Area */
 .chat-wrapper {
+    flex: 1;
+    min-width: 600px;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -538,4 +547,17 @@ body {
 
 .submit-friend-btn:hover {
     background: #4752c4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    #chat-container {
+        grid-template-columns: 180px minmax(400px, 1fr) 180px;
+    }
+
+    .friends-sidebar,
+    .members-sidebar {
+        width: 180px;
+        min-width: 180px;
+    }
 }
