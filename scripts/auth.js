@@ -1,5 +1,8 @@
 import { db } from './firebase-config.js';
 import { ref, set, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { setUserOnline } from './online.js';
+import { displayMessages } from './chat.js';
+import { loadFriends } from './social.js';
 
 const ADMIN_USERNAMES = ['SusLOL'];
 let currentUser = null;
@@ -61,34 +64,37 @@ async function loginUser() {
             return;
         }
         
-        if (userData.banned) {
-            showToast('Your account has been banned!', 'error');
-            return;
-        }
-        
         if (userData.password === password) {
+            // Set user as logged in
             currentUser = username;
             localStorage.setItem('currentUser', username);
             
+            // Update UI
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('chat-container').style.display = 'grid';
             
+            // Setup admin controls if needed
             if (isAdmin(username)) {
                 const adminControls = document.getElementById('admin-controls');
-                if (adminControls) adminControls.style.display = 'flex';
+                if (adminControls) {
+                    adminControls.style.display = 'flex';
+                }
             }
             
-            setUserOnline(username);
-            showToast(`Welcome back, ${username}!`, 'success');
+            // Initialize user presence
+            await setUserOnline(username);
+            
+            // Load app data
             displayMessages();
             loadFriends();
-            loadOnlineUsers();
+            
+            showToast(`Welcome back, ${username}!`, 'success');
         } else {
             showToast('Invalid password', 'error');
         }
     } catch (error) {
         console.error('Login error:', error);
-        showToast('An error occurred during login', 'error');
+        showToast(`Login failed: ${error.message}`, 'error');
     }
 }
 
