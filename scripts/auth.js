@@ -1,7 +1,6 @@
 import { db } from './firebase-config.js';
 import { ref, set, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 import { setUserOnline } from './online.js';
-import { displayMessages } from './chat.js';
 import { loadFriends } from './social.js';
 
 const ADMIN_USERNAMES = ['SusLOL'];
@@ -27,14 +26,23 @@ async function loginUser() {
         }
         
         if (userData.password === password) {
-            currentUser = username;
             localStorage.setItem('currentUser', username);
             
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'grid';
+            // Show chat container
+            const authContainer = document.getElementById('auth-container');
+            const chatContainer = document.getElementById('chat-container');
             
-            await setUserOnline(username);
-            showToast(`Welcome back, ${username}!`, 'success');
+            if (authContainer && chatContainer) {
+                authContainer.style.display = 'none';
+                chatContainer.style.display = 'grid';
+                
+                // Initialize chat features
+                await setUserOnline(username);
+                await loadFriends();
+                showToast(`Welcome back, ${username}!`, 'success');
+            } else {
+                throw new Error('Required containers not found');
+            }
         } else {
             showToast('Invalid password', 'error');
         }

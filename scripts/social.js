@@ -24,24 +24,24 @@ export function loadMembers() {
     membersList.innerHTML = html || '<div class="no-members">No members online</div>';
 }
 
-function loadFriends() {
+export async function loadFriends() {
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) return;
+
+    const userRef = ref(db, `users/${currentUser}/friends`);
+    const snapshot = await get(userRef);
+    const friends = snapshot.val() || [];
+
     const friendsList = document.getElementById('friends-list');
     if (!friendsList) return;
 
-    const currentUser = localStorage.getItem('currentUser');
-    const users = JSON.parse(localStorage.getItem('users') || '{}');
-    const userFriends = users[currentUser]?.friends || [];
-
-    if (userFriends.length === 0) {
-        friendsList.innerHTML = `
-            <div class="no-friends">
-                No friends added yet
-            </div>`;
+    if (friends.length === 0) {
+        friendsList.innerHTML = '<div class="no-friends">No friends added yet</div>';
         return;
     }
 
     let html = '';
-    userFriends.forEach(friend => {
+    friends.forEach(friend => {
         const isOnline = checkUserOnline(friend);
         html += `
             <div class="friend-item" onclick="startChat('${friend}')">

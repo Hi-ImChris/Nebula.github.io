@@ -150,6 +150,12 @@ let currentCategory = 'smileys';
 const recentEmojis = JSON.parse(localStorage.getItem('recentEmojis') || '[]');
 
 function createEmojiPicker() {
+    // Remove any existing emoji menu
+    const existingMenu = document.getElementById('emoji-menu');
+    if (existingMenu) {
+        existingMenu.remove();
+    }
+
     const pickerHTML = `
         <div class="emoji-menu" id="emoji-menu" style="display: none;">
             <div class="emoji-search-wrapper">
@@ -266,11 +272,18 @@ function filterEmojis(searchTerm) {
 // Initialize emoji picker
 document.addEventListener('DOMContentLoaded', () => {
     createEmojiPicker();
+    initializeEmojiListeners();
+});
 
-    // Event listeners
+function initializeEmojiListeners() {
+    const emojiMenu = document.getElementById('emoji-menu');
+    if (!emojiMenu) {
+        console.error('Emoji menu not found');
+        return;
+    }
+
     document.addEventListener('click', (event) => {
-        const emojiMenu = document.getElementById('emoji-menu');
-        if (emojiMenu && !emojiMenu.contains(event.target) && 
+        if (!emojiMenu.contains(event.target) && 
             !event.target.classList.contains('emoji-button')) {
             hideEmojiMenu();
         }
@@ -290,6 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => filterEmojis(e.target.value));
     }
-});
+}
 
 export { showEmojiMenu, hideEmojiMenu };
