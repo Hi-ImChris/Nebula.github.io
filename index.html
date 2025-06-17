@@ -148,8 +148,12 @@
     <script type="module" src="./scripts/emojiPicker.js"></script>
     <script type="module">
         import { loginUser, registerUser } from './scripts/auth.js';
+        import { setUserOnline } from './scripts/online.js';
+        
+        // Make functions available globally
         window.loginUser = loginUser;
         window.registerUser = registerUser;
+        window.setUserOnline = setUserOnline;
     </script>
 </body>
 </html>

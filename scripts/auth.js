@@ -71,11 +71,6 @@ export async function loginUser() {
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('chat-container').style.display = 'grid';
             
-            if (isAdmin(username)) {
-                const adminControls = document.getElementById('admin-controls');
-                if adminControls) adminControls.style.display = 'flex';
-            }
-            
             await setUserOnline(username);
             await displayMessages();
             await loadFriends();

@@ -1,7 +1,8 @@
 import { db } from './firebase-config.js';
 import { ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { isAdmin } from './auth.js';
 
-export function setUserOnline(username) {
+export async function setUserOnline(username) {
     if (!username) return;
     
     const userStatusRef = ref(db, `online/${username}`);
