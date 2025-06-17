@@ -34,12 +34,5 @@ function updateMembersList(users) {
             </div>`;
     });
 
-    membersList.innerHTML = html;
+    membersList.innerHTML = html || '<div class="no-members">No members online</div>';
 }
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('currentUser')) {
-        loadOnlineUsers();
-    }
-});
