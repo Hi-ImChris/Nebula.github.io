@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Nebula</title>
     <!-- Replace gg sans with a reliable Google Font -->
@@ -16,14 +16,40 @@
             <h1>Welcome to Nebula</h1>
             <input type="text" id="username" placeholder="Username" maxlength="32">
             <input type="password" id="password" placeholder="Password">
-            <button id="loginBtn">Login</button>
-            <button id="registerBtn">Register</button>
+            <button onclick="loginUser()">Login</button>
+            <button onclick="registerUser()">Register</button>
         </div>
     </div>
 
     <!-- Chat Container -->
     <div id="chat-container" style="display: none;">
-        <!-- Your chat container content -->
+        <div class="friends-sidebar">
+            <div class="sidebar-header">Friends</div>
+            <div id="friends-list"></div>
+        </div>
+        
+        <div class="chat-wrapper">
+            <div class="chat-header">
+                <div class="chat-title">Welcome to Nebula</div>
+                <div id="admin-controls" style="display: none;">
+                    <button onclick="purgeMessages()" class="danger-btn">Purge Chat</button>
+                </div>
+            </div>
+            <div id="chat-box" class="chat-box"></div>
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <button class="emoji-button" onclick="showEmojiMenu(event)">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <input type="text" id="message-input" placeholder="Message">
+                </div>
+            </div>
+        </div>
+        
+        <div class="members-sidebar">
+            <div class="sidebar-header">Members</div>
+            <div id="members-list"></div>
+        </div>
     </div>
 
     <!-- Scripts -->

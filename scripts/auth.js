@@ -11,6 +11,8 @@ async function loginUser() {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         
+        console.log('Attempting login for:', username); // Debug log
+        
         if (!username || !password) {
             showToast('Please fill in all fields', 'error');
             return;
@@ -20,28 +22,40 @@ async function loginUser() {
         const snapshot = await get(userRef);
         const userData = snapshot.val();
         
+        console.log('User data:', userData); // Debug log
+        
         if (!userData) {
             showToast('User not found', 'error');
             return;
         }
         
         if (userData.password === password) {
+            console.log('Password matched, proceeding with login'); // Debug log
+            
             localStorage.setItem('currentUser', username);
             
-            // Show chat container
-            const authContainer = document.getElementById('auth-container');
+            // Make sure chat container exists in HTML
             const chatContainer = document.getElementById('chat-container');
-            
-            if (authContainer && chatContainer) {
+            if (!chatContainer) {
+                console.error('Chat container not found in DOM');
+                throw new Error('Chat container not found');
+            }
+
+            // Hide auth container
+            const authContainer = document.getElementById('auth-container');
+            if (authContainer) {
                 authContainer.style.display = 'none';
-                chatContainer.style.display = 'grid';
-                
-                // Initialize chat features
+            }
+
+            // Show chat container
+            chatContainer.style.display = 'grid';
+            
+            try {
                 await setUserOnline(username);
-                await loadFriends();
+                console.log('User set to online'); // Debug log
                 showToast(`Welcome back, ${username}!`, 'success');
-            } else {
-                throw new Error('Required containers not found');
+            } catch (error) {
+                console.error('Error setting user online:', error);
             }
         } else {
             showToast('Invalid password', 'error');
