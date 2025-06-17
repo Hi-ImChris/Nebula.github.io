@@ -5,12 +5,42 @@ import { setUserOnline } from './online.js';
 const ADMIN_USERNAMES = ['SusLOL'];
 export let currentUser = null;
 
+// Toast notification system
+function createToastContainer() {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+function showToast(message, type = 'info') {
+    const container = createToastContainer();
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => {
+            container.removeChild(toast);
+            if (container.children.length === 0) {
+                container.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Login function
 export async function loginUser() {
     try {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         
-        console.log('Attempting login for:', username); // Debug log
+        console.log('Login attempt:', username); // Debug log
         
         if (!username || !password) {
             showToast('Please fill in all fields', 'error');
@@ -22,38 +52,30 @@ export async function loginUser() {
         const userData = snapshot.val();
         
         console.log('User data:', userData); // Debug log
-        
+
         if (!userData) {
             showToast('User not found', 'error');
             return;
         }
         
         if (userData.password === password) {
-            console.log('Password matched, proceeding with login'); // Debug log
-            
             localStorage.setItem('currentUser', username);
             
-            // Hide auth container
+            // Update UI
             const authContainer = document.getElementById('auth-container');
-            if (authContainer) {
-                authContainer.style.display = 'none';
-            }
-
-            // Show chat container
             const chatContainer = document.getElementById('chat-container');
-            if (chatContainer) {
-                chatContainer.style.display = 'grid';
-            } else {
-                console.error('Chat container not found in DOM');
-                throw new Error('Chat container not found');
-            }
             
-            try {
+            console.log('Containers:', { authContainer, chatContainer }); // Debug log
+            
+            if (authContainer && chatContainer) {
+                authContainer.style.display = 'none';
+                chatContainer.style.display = 'grid';
+                
                 await setUserOnline(username);
-                console.log('User set to online'); // Debug log
                 showToast(`Welcome back, ${username}!`, 'success');
-            } catch (error) {
-                console.error('Error setting user online:', error);
+                console.log('Login successful'); // Debug log
+            } else {
+                console.error('Container elements not found');
             }
         } else {
             showToast('Invalid password', 'error');
@@ -100,28 +122,4 @@ export async function registerUser() {
 
 export function isAdmin(username) {
     return ADMIN_USERNAMES.includes(username);
-}
-
-function showToast(message, type = 'info') {
-    let container = document.querySelector('.toast-container');
-    if (!container) {
-        container = document.createElement('div');
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.add('fade-out');
-        setTimeout(() => {
-            container.removeChild(toast);
-            if (container.children.length === 0) {
-                container.remove();
-            }
-        }, 300);
-    }, 3000);
 }

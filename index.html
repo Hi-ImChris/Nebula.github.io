@@ -69,23 +69,33 @@
     <script type="module" src="./scripts/emojiPicker.js"></script>
 
     <script type="module">
-        import { loginUser, registerUser } from './scripts/auth.js';
+    import { loginUser, registerUser } from './scripts/auth.js';
+    
+    function initializeApp() {
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
         
-        // Initialize auth functionality
-        function init() {
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            
-            if (loginBtn) loginBtn.addEventListener('click', loginUser);
-            if (registerBtn) registerBtn.addEventListener('click', registerUser);
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                console.log('Login button clicked'); // Debug log
+                loginUser();
+            });
         }
+        
+        if (registerBtn) {
+            registerBtn.addEventListener('click', () => {
+                console.log('Register button clicked'); // Debug log
+                registerUser();
+            });
+        }
+    }
 
-        // Wait for DOM to be ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    </script>
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
+</script>
 </body>
 </html>

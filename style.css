@@ -82,10 +82,10 @@ body {
 
 /* Chat container styles */
 #chat-container {
-    width: 100%;
-    height: 100vh;
-    display: grid;
+    display: none;
     grid-template-columns: 240px 1fr 240px;
+    height: 100vh;
+    background: #36393f;
 }
 
 /* Sidebar styles */
@@ -387,9 +387,6 @@ body {
     top: 20px;
     right: 20px;
     z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
 }
 
 .toast {
@@ -397,22 +394,31 @@ body {
     color: #fff;
     padding: 12px 24px;
     border-radius: 4px;
+    margin-bottom: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     animation: slideIn 0.3s ease;
-    min-width: 200px;
-    font-weight: 500;
 }
 
 .toast.success {
-    border-left: 4px solid #3ba55c;
+    background: #43b581;
 }
 
 .toast.error {
-    border-left: 4px solid #ed4245;
+    background: #f04747;
 }
 
 .toast.fade-out {
-    animation: slideOut 0.3s ease forwards;
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
 }
 
 /* Copyright */
