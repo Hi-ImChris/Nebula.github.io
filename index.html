@@ -26,6 +26,13 @@
 
     <!-- Chat Container -->
     <div id="chat-container" style="display: none;">
+        <!-- Left Sidebar - Friends List -->
+        <div class="friends-sidebar">
+            <div class="sidebar-header">Friends</div>
+            <div id="friends-list" class="friends-list"></div>
+        </div>
+
+        <!-- Main Chat Area -->
         <div class="chat-wrapper">
             <div class="chat-header">
                 <div class="chat-title">Welcome to Nebula</div>
@@ -38,9 +45,6 @@
             <div id="chat-box" class="chat-box"></div>
             <div class="input-area">
                 <div class="input-wrapper">
-                    <button class="attachment-btn">
-                        <i class="fas fa-plus-circle"></i>
-                    </button>
                     <input type="text" id="message-input" placeholder="Message">
                     <div class="input-actions">
                         <button class="emoji-button">
@@ -52,6 +56,12 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Right Sidebar - Member List -->
+        <div class="members-sidebar">
+            <div class="sidebar-header">Online</div>
+            <div id="members-list" class="members-list"></div>
         </div>
     </div>
 

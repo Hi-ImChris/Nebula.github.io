@@ -83,132 +83,80 @@ body {
 /* Chat container styles */
 #chat-container {
     display: none;
+    grid-template-columns: 240px 1fr 240px;
     height: 100vh;
     background: #36393f;
 }
 
-/* Sidebar styles */
-.friends-sidebar, .members-sidebar {
+/* Sidebars */
+.friends-sidebar,
+.members-sidebar {
     background: #2f3136;
     border-right: 1px solid #202225;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
 }
 
 .members-sidebar {
-    border-right: none;
     border-left: 1px solid #202225;
+    border-right: none;
 }
 
 .sidebar-header {
     padding: 16px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
     color: #96989d;
-    background: #2f3136;
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
     border-bottom: 1px solid #202225;
-    position: sticky;
-    top: 0;
-    z-index: 1;
 }
 
-/* Member and Friend styles */
-.member-item, .friend-item {
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    color: #dcddde;
-    transition: background-color 0.2s;
-    font-size: 16px;
-    width: 100%;
-    font-weight: 500;
+.friends-list,
+.members-list {
+    padding: 8px;
+    overflow-y: auto;
 }
 
-.friend-item {
-    padding: 16px;
+/* Friend/Member Items */
+.friend-item,
+.member-item {
+    padding: 8px;
+    margin: 2px 0;
+    border-radius: 4px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    color: #96989d;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.friend-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.friend-name {
-    color: #dcddde;
-    font-size: 16px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.friend-actions {
-    display: flex;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.friend-item:hover .friend-actions {
-    opacity: 1;
-}
-
-.member-item:hover, .friend-item:hover {
+.friend-item:hover,
+.member-item:hover {
     background: #36393f;
+    color: #dcddde;
 }
 
-.member-status, .friend-status {
+/* Status Indicators */
+.status-indicator {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    flex-shrink: 0;
-    border: 2px solid #2f3136;
+    margin-right: 8px;
 }
 
 .status-online {
-    background: #3ba55c;
+    background: #43b581;
 }
 
 .status-offline {
     background: #747f8d;
 }
 
-/* Update the verification badge style */
-.verified-badge {
-    color: #7289da;
-    margin-left: 4px;
-    font-size: 14px;
-}
-
-.no-friends {
-    padding: 16px;
-    color: #72767d;
-    font-size: 14px;
-    text-align: center;
-    width: 100%;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 48px;
-    background: #2f3136;
-}
-
-/* Chat area styles */
+/* Chat Area */
 .chat-wrapper {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh;
 }
 
 .chat-header {
@@ -218,63 +166,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    z-index: 10;
 }
 
 .chat-title {
-    font-weight: 600;
     color: #fff;
-    font-size: 16px;
-}
-
-#admin-controls {
-    display: none;
-    gap: 8px;
-}
-
-.admin-btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s;
-}
-
-.danger-btn {
-    background: #f04747;
-    color: white;
-    border: none;
-}
-
-.danger-btn:hover {
-    background: #d84040;
-}
-
-#admin-controls {
-    display: none;
-    gap: 8px;
-}
-
-#admin-controls button {
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: none;
-    background: #4f545c;
-    color: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#admin-controls .danger-btn {
-    background: #ed4245;
+    font-weight: 600;
 }
 
 .chat-box {
@@ -284,67 +180,9 @@ body {
     scroll-behavior: smooth;
 }
 
-/* Message styles */
-.message {
-    margin-bottom: 16px;
-    padding: 2px 16px;
-    border-radius: 4px;
-}
-
-.message-header {
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.sender {
-    font-weight: 500;
-    color: #fff;
-    font-size: 16px;
-}
-
-.timestamp {
-    color: #72767d;
-    font-size: 0.75rem;
-}
-
-.message-content {
-    color: #dcddde;
-    font-size: 16px;
-    line-height: 1.375rem;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.message.system {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-left: 4px solid #ffd700;
-    color: #ffd700;
-    font-family: 'Consolas', monospace;
-    font-weight: 500;
-    padding: 8px 12px;
-    position: relative;
-}
-
-.system-timestamp {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgba(255, 215, 0, 0.5);
-    font-size: 12px;
-}
-
-/* Input area styles */
+/* Input Area */
 .input-area {
-    padding: 16px 16px 24px;
-    background: #36393f;
-    flex-shrink: 0;
-    position: sticky;
-    bottom: 0;
-    z-index: 10;
-    border-top: 1px solid #202225;
+    padding: 0 16px 24px;
 }
 
 .input-wrapper {
@@ -353,42 +191,6 @@ body {
     display: flex;
     align-items: center;
     padding: 0 16px;
-    margin: 0 16px 24px;
-}
-
-.input-buttons {
-    display: flex;
-    gap: 4px;
-    padding: 10px 0;
-}
-
-.action-btn {
-    background: transparent;
-    border: none;
-    color: #b9bbbe;
-    padding: 8px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.action-btn:hover {
-    color: #dcddde;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.message-btn:hover {
-    color: #5865f2;
-}
-
-.remove-btn:hover {
-    color: #ed4245;
-}
-
-.chat-title-content {
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
 #message-input {
@@ -408,6 +210,21 @@ body {
 .input-actions {
     display: flex;
     gap: 4px;
+}
+
+.emoji-button,
+.send-button {
+    background: transparent;
+    border: none;
+    color: #b9bbbe;
+    padding: 12px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.emoji-button:hover,
+.send-button:hover {
+    color: #dcddde;
 }
 
 .send-button {
