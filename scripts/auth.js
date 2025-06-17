@@ -5,7 +5,7 @@ import { displayMessages } from './chat.js';
 import { loadFriends } from './social.js';
 
 const ADMIN_USERNAMES = ['SusLOL'];
-let currentUser = null;
+export let currentUser = null;
 const INACTIVE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
 function debounce(func, wait) {
@@ -45,7 +45,7 @@ const showToast = debounce((message, type = 'info') => {
     }, 3000);
 }, 300);
 
-async function loginUser() {
+export async function loginUser() {
     try {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
@@ -54,9 +54,7 @@ async function loginUser() {
             showToast('Please fill in all fields', 'error');
             return;
         }
-        
-        console.log('Attempting login for:', username); // Debug log
-        
+
         const userRef = ref(db, `users/${username}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
@@ -67,93 +65,32 @@ async function loginUser() {
         }
         
         if (userData.password === password) {
-            // Set user as logged in
             currentUser = username;
             localStorage.setItem('currentUser', username);
             
-            // Update UI
-            const authContainer = document.getElementById('auth-container');
-            const chatContainer = document.getElementById('chat-container');
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('chat-container').style.display = 'grid';
             
-            if (!authContainer || !chatContainer) {
-                throw new Error('Required DOM elements not found');
+            if (isAdmin(username)) {
+                const adminControls = document.getElementById('admin-controls');
+                if adminControls) adminControls.style.display = 'flex';
             }
             
-            authContainer.style.display = 'none';
-            chatContainer.style.display = 'grid';
+            await setUserOnline(username);
+            await displayMessages();
+            await loadFriends();
             
-            // Initialize features one by one with error checking
-            try {
-                await setUserOnline(username);
-                console.log('User set online'); // Debug log
-                
-                await displayMessages();
-                console.log('Messages displayed'); // Debug log
-                
-                await loadFriends();
-                console.log('Friends loaded'); // Debug log
-                
-                // Setup admin controls if needed
-                if (isAdmin(username)) {
-                    const adminControls = document.getElementById('admin-controls');
-                    if (adminControls) {
-                        adminControls.style.display = 'flex';
-                    }
-                }
-                
-                showToast(`Welcome back, ${username}!`, 'success');
-            } catch (featureError) {
-                console.error('Feature initialization error:', featureError);
-                showToast('Logged in but some features failed to load', 'warning');
-            }
+            showToast(`Welcome back, ${username}!`, 'success');
         } else {
             showToast('Invalid password', 'error');
         }
     } catch (error) {
-        console.error('Login error details:', {
-            message: error.message,
-            stack: error.stack,
-            timestamp: new Date().toISOString()
-        });
-        showToast('An error occurred during login. Check console for details.', 'error');
+        console.error('Login error:', error);
+        showToast('An error occurred during login', 'error');
     }
 }
 
-async function registerUser() {
-    try {
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value;
-        
-        if (!username || !password) {
-            showToast('Please fill in all fields', 'error');
-            return;
-        }
-        
-        const userRef = ref(db, `users/${username}`);
-        const snapshot = await get(userRef);
-        
-        if (snapshot.exists()) {
-            showToast('Username already exists!', 'error');
-            return;
-        }
-        
-        await set(userRef, {
-            password: password,
-            friends: [],
-            friendRequests: [],
-            banned: false,
-            createdAt: Date.now()
-        });
-        
-        showToast('Registered successfully!', 'success');
-        loginUser();
-    } catch (error) {
-        console.error('Registration error:', error);
-        showToast('An error occurred during registration', 'error');
-    }
-}
-
-function isAdmin(username) {
+export function isAdmin(username) {
     return ADMIN_USERNAMES.includes(username);
 }
 
@@ -196,4 +133,4 @@ document.addEventListener('mousemove', () => {
     }
 });
 
-export { loginUser, registerUser, isAdmin, logout };
+export { loginUser, isAdmin, logout };

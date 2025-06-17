@@ -1,29 +1,20 @@
 import { db } from './firebase-config.js';
-import { ref, set, onValue, onDisconnect } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { ref, set, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
-function setUserOnline(username) {
+export function setUserOnline(username) {
     if (!username) return;
     
     const userStatusRef = ref(db, `online/${username}`);
-    
-    set(userStatusRef, {
+    return set(userStatusRef, {
         status: 'online',
-        lastSeen: Date.now()
-    });
-
-    // Handle disconnection
-    onDisconnect(userStatusRef).set({
-        status: 'offline',
         lastSeen: Date.now()
     });
 }
 
-function loadOnlineUsers() {
+export function loadOnlineUsers() {
     const onlineRef = ref(db, 'online');
-    
     onValue(onlineRef, (snapshot) => {
-        const users = snapshot.val() || {};
-        updateMembersList(users);
+        updateMembersList(snapshot.val() || {});
     });
 }
 
@@ -51,5 +42,3 @@ document.addEventListener('DOMContentLoaded', () => {
         loadOnlineUsers();
     }
 });
-
-export { setUserOnline, loadOnlineUsers };

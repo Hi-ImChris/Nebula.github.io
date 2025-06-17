@@ -1,26 +1,27 @@
+import { db } from './firebase-config.js';
+import { ref, set, get } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { isAdmin } from './auth.js';
+
 let currentDM = null;
 
-function loadMembers() {
+export function loadMembers() {
     const membersList = document.getElementById('members-list');
     if (!membersList) return;
 
     const users = JSON.parse(localStorage.getItem('users') || '{}');
-    const currentUser = localStorage.getItem('currentUser');
-
     let html = '';
+
     Object.keys(users).forEach(username => {
         const isOnline = checkUserOnline(username);
-        const isVerified = isAdmin(username);
-        
         html += `
-            <div class="member-item" onclick="startDM('${username}')">
+            <div class="member-item">
                 <div class="member-status ${isOnline ? 'status-online' : 'status-offline'}"></div>
                 ${username}
-                ${isVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
+                ${isAdmin(username) ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}
             </div>`;
     });
 
-    membersList.innerHTML = html;
+    membersList.innerHTML = html || '<div class="no-members">No members online</div>';
 }
 
 function loadFriends() {
